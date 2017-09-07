@@ -1,0 +1,83 @@
+[
+  {
+	"Author": "Platon",
+	"Creation": {
+    	  "Name": "Laws",
+    	  "Date of writing": "-354",
+    	  "Publishing house": "Crete, Ancient Greece"
+	},
+	"ISBN": "123-1234"
+  },
+  {
+	"Author": "Platon",
+	"Creation": {
+    	  "Name": "House",
+    	  "Date of writing": "-370",
+    	  "Publishing house": "Voroli, Ancient Greece"
+	},
+	"ISBN": "123-4367"
+  },
+   {
+	"Author": "Platon",
+	"Creation": {
+    	  "Name": "Feast",
+    	  "Date of writing": "-360",
+    	  "Publishing house": "Korinf, Ancient Greece"
+	},
+	"ISBN": "123-2684"
+  },
+  {
+	"Author": "Carl Marx",
+	"Creation": {
+    	  "Name": "Capital",
+    	  "Date of writing": "1867",
+    	  "Publishing house": "Otto Karl Meisner, Germany"
+	},
+	"ISBN": "553-3831"
+  },
+  {
+	"Author": "Brandon Sanderson",
+	"Creation": {
+    	  "Name": "Words of radiance",
+    	  "Date of writing": "2017",
+    	  "Publishing house": "Azbuka SPB, Russia"
+	},
+	"ISBN": "9785389106482"
+  },
+   {
+	"Author": "Janagihara Hanya",
+	"Creation": {
+    	  "Name": "Small life",
+    	  "Date of writing": "2017",
+    	  "Publishing house": "ACT, Russia"
+	},
+	"ISBN": "9785170971190"
+  },
+  {
+	"Author": "Sapkovskiy Anjey",
+	"Creation": {
+    	  "Name": "The Witcher",
+    	  "Date of writing": "2016",
+    	  "Publishing house": "Astrel, Russia"
+	},
+	"ISBN": "9785170750733"
+  },
+   {
+	"Author": "Maas Sara",
+	"Creation": {
+    	  "Name": "Empire of storms",
+    	  "Date of writing": "2017",
+    	  "Publishing house": "Azbuka SPB, Russia"
+	},
+	"ISBN": "9785389126787"
+  },
+   {
+	"Author": "Torjusen Mary",
+	"Creation": {
+    	  "Name": "Lost",
+    	  "Date of writing": "2017",
+    	  "Publishing house": "ACT, Russia"
+	},
+	"ISBN": "9785171016463"
+  }
+]
