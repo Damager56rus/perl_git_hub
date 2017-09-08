@@ -6,7 +6,7 @@ use Modern::Perl;
 # Подключить модуль для использования сокета
 use Socket;
 
-use backend_db;
+use backend;
 
 # Объявить массив и инициализировать его 
 # элементы аргументами из командной строки
@@ -51,7 +51,7 @@ while ( accept( CLIENT, SERVER ) ) {
        # и передать URL в метод process_request
        # если не запрошен favicon.ico
        if ( $data =~ /(\/.*) H/ && $1 ne "favicon.ico" ) { 
-            backend_db::process_request( $1 );
+            backend::process_request( $1 );
 
             # Сформировать ответ из полученного от
             # бекенда каталога и отправить его клиенту
@@ -64,8 +64,8 @@ while ( accept( CLIENT, SERVER ) ) {
 # Сформировать и отправить ответ от сервера
 sub responce_data {
     # Если от бекенда получен пустой массив
-    #if ( @backend_db::catalog == 0 ) {
-      if ( $backend_db::catalog == 0 ) {
+    if ( @backend::catalog == 0 ) {
+    #if ( $backend_db::catalog == 0 ) {
          # Вызвать функцию для отправки ответа
          # с кодом состояния 404 Not Found
          responce_404_error();
@@ -78,8 +78,8 @@ sub responce_data {
     
          # Отправить полученное от бекенда
          # содержимое массива
-         #foreach my $array1( @backend_db::catalog ) {
-          foreach my $array1( $backend_db::catalog ) {
+           foreach my $array1( @backend::catalog ) {
+          #foreach my $array1( $backend_db::catalog ) {
                  # Если значение первого элемента массива 
                  # не равно тексту одного из сообщений
                  if ( $array1 ne "User repository is empty." && $array1 ne "yep" && $array1 ne "nop" ) {
