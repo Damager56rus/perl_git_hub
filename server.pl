@@ -1,142 +1,78 @@
 #!/usr/bin/perl
 # Perl Web-Server
 
-use Modern::Perl;
+# Подключить модули для
+use Modern::Perl; # ужесточения автоматического контроля
+use Socket; # использования сокета
+use backend; # использования модуля бекенда
 
-# Подключить модуль для использования сокета
-use Socket;
+# Объявить переменные для хранения
+my @arguments = @ARGV; # аргументов из командной строки
+my $ip_address = $arguments[1]; # IP-адреса сервера
+my $port = $arguments[3]; # порта сервера
+my $data; # запросов и ответов
 
-use backend;
-
-# Объявить массив и инициализировать его 
-# элементы аргументами из командной строки
-my @arguments = @ARGV;
-
-# Объявить и инициализировать переменные 
-# для хранения IP-адреса и порта сервера
-my $ip_address = $arguments[1];
-my $port = $arguments[3];
-#my $backend_number = $arguments[5];
-
-# Объявить переменную для хранения запросов и ответов
-my $data;
-
-# Создать сокет с параметрами ИМЯ, ДОМЕН, ТИП, ПРОТОКОЛ
-socket( SERVER, PF_INET, SOCK_STREAM, getprotobyname( 'tcp' ) )
+socket( SERVER, PF_INET, SOCK_STREAM, getprotobyname( 'tcp' ) ) # cоздать сокет с параметрами ИМЯ, ДОМЕН, ТИП, ПРОТОКОЛ
        or die "Can't open socket $!\n";
 
-# Привязать сокет к порту и IP-адресу хоста
-bind( SERVER, pack_sockaddr_in( $port, inet_aton( $ip_address ) ) )
+bind( SERVER, pack_sockaddr_in( $port, inet_aton( $ip_address ) ) ) # привязать сокет к порту и IP-адресу хоста
     or die "Can't bind to port $port! \n";
 
-# Вызвать прослушивание входящих запросов
-# на указанном порту
-listen( SERVER, 5 ) or die "listen: $!";
+listen( SERVER, 5 ) or die "listen: $!"; # вызвать прослушивание входящих запросов на порту
 
-# Вывести сообщение о запуске сервера
-# с указанием порта
-say "SERVER started on port $port";
+say "SERVER started on port $port"; # сообщение о запуске сервера с указанием порта
 
-# Вызвать функцию для приема входящих соединений
-while ( accept( CLIENT, SERVER ) ) { 
-       # Получить запрос от клиента и обрезать
-       # символ новой строки
-       chomp ( $data = <CLIENT> );
+while ( accept( CLIENT, SERVER ) ) { # принимать входящие соединения
+       chomp ( $data = <CLIENT> ); # получить запрос от клиента
        
-       # Вывести сообщение о получении
-       # запроса и текст запроса
-       say "Получен запрос: $data";
+       say "Получен запрос: $data"; # сообщение о получении запроса
 
-       # Обработать запрос от клиента, выделив URI
-       # и передать URL в метод process_request
-       # если не запрошен favicon.ico
-       if ( $data =~ /(\/.*) H/ && $1 ne "favicon.ico" ) { 
-            backend::process_request( $1 );
-
-            # Сформировать ответ из полученного от
-            # бекенда каталога и отправить его клиенту
-            responce_data();
+       if ( $data =~ /(\/.*) H/ && $1 ne "favicon.ico" ) { # если не запрошен favicon.ico выделить URI из запроса
+            backend::process_request( $1 ); # передать URL в метод process_request бекенда
+            responce_data(); # сформировать и отправить ответ клиенту
        }
-       # Закрыть сокет клиента после отправки ответа
-       close CLIENT;
+      
+       close CLIENT; # закрыть сокет клиента после отправки ответа
 }
 
 # Сформировать и отправить ответ от сервера
 sub responce_data {
-    # Если от бекенда получен пустой массив
-    if ( @backend::catalog == 0 ) {
-    #if ( $backend_db::catalog == 0 ) {
-         # Вызвать функцию для отправки ответа
-         # с кодом состояния 404 Not Found
-         responce_404_error();
+    if ( @backend::catalog == 0 ) { # если от бекенда получен пустой массив
+         responce_404_error(); # отправить ответ с кодом состояния 404 Not Found
     }
-    # Если от бекенда получен не пустой массив
-    else {
-         # Вызвать функцию для отправки ответа
-         # с кодом состояния 200 Ok
-         responce_200_ok();
+    else { # если от бекенда получен не пустой массив
+         responce_200_ok(); # отправить ответ с кодом состояния 200 Ok
     
-         # Отправить полученное от бекенда
-         # содержимое массива
-           foreach my $array1( @backend::catalog ) {
-          #foreach my $array1( $backend_db::catalog ) {
-                 # Если значение первого элемента массива 
-                 # не равно тексту одного из сообщений
-                 if ( $array1 ne "User repository is empty." && $array1 ne "yep" && $array1 ne "nop" ) {
-                      # Объявить и инициализировать счетчик для 
-                      # отправки разрыва между позициями каталога
-                      my $rupture_counter = 0;
-                      
-                      # Объявить и инициализировать переменную
-                      # для определения частоты разрыва
-                      my $rupture_comparator = 3;
+         foreach my $array1( @backend::catalog ) { # отправить полученное от бекенда содержимое
+                 if ( $array1 ne "User repository is empty." && $array1 ne "yep" && $array1 ne "nop" ) { # если не получено одно из сообщений
+                      my $rupture_counter = 0; # счетчик для отправки разрыва между позициями каталога
+                      my $rupture_comparator = 3; # переменная для хранения частоты разрыва
 
-                      # Если в массиве у хеша есть ключ new_order
-                      # увеличить частоту разрыва
-                      if ( $array1->{ "new_order" } ) { $rupture_comparator = 4; }
+                      if ( $array1->{ "new_order" } ) { $rupture_comparator = 4; } # если есть ключ new_order увеличить частоту разрыва
 
-                      # Перебрать все ключи и значения из хешей,
-                      # являющихся элементами массива
-                      while ( ( my $key, my $value ) = each %$array1 ) {
-                                # Увеличить значение счетчика разрывов на 1
-                                $rupture_counter++;
+                      while ( ( my $key, my $value ) = each %$array1 ) { # перебрать все ключи и значения из хешей
+                                $rupture_counter++; # увеличить счетчика разрыва на 1
 
-                                # Если ключ имеет имя Creation
-                                if ( $key eq "Creation" ) {
-                                     # Объявить и инициализировать хеш элементами
-                                     # хеша по ключу Creation
-                                     my $hash1 = $array1->{ "Creation" };
+                                if ( $key eq "Creation" ) { # если ключ имеет имя Creation
+                                     my $hash1 = $array1->{ "Creation" }; # записать хеш по ключу Creation
                                 
-                                     # Отправить содержимое Creation:
-                                     print CLIENT "<html><center><h1>Creation: </center></h1></html>";
+                                     print CLIENT "<html><center><h1>Creation: </center></h1></html>"; # отправить содержимое Creation:
                                
-                                     # Перебрать все ключи и значения хеша,
-                                     # полученного по ключу Creation
-                                     while ( ( my $key1, my $value1 ) = each %$hash1 ) {
-                                              # Отправить содержимое с ключами: значениями
-                                              # хеша, полученного по ключу Creation
-                                              print CLIENT "<html><center><h1>$key1: $value1</center></h1></html>";
+                                     while ( ( my $key1, my $value1 ) = each %$hash1 ) { # перебрать все ключи и значения хеша Creation
+                                               print CLIENT "<html><center><h1>$key1: $value1</center></h1></html>";  # отправить ключи: значения хеша Creation
                                      }
                                 }
-                                # Если ключ не имеет имя Creation
-                                else {
-                                     # Отправить содержимое с ключами: значениями
-                                     # из остальных хешей
-                                     print CLIENT "<html><center><h1>$key: $value</center></h1></html>";
+                                else { # если ключ не имеет имя Creation
+                                     print CLIENT "<html><center><h1>$key: $value</center></h1></html>"; # отправить содержимое остальных хешей
                                 }
-                                # Если счетчик разрывов равен частоте разрывов
-                                if ( $rupture_counter == $rupture_comparator ) { 
-                                     # Отправить содержимое --- 
-                                     # между позициями каталога
-                                     print CLIENT "<html><center><h1>---</center></h1></html>"; 
+                                
+                                if ( $rupture_counter == $rupture_comparator ) { # если счетчик разрывов равен частоте разрывов
+                                     print CLIENT "<html><center><h1>---</center></h1></html>";  # отправить разрыв между позициями каталога
                                 }
                       }
                  }
-                 # Если значение первого элемента массива 
-                 # равно тексту одного из сообщений
-                 else {
-                      # Отправить содержимое с сообщением
-                      print CLIENT "<html><center><h1>$array1</center></h1></html>";
+                 else { # если получено одно из сообщений
+                      print CLIENT "<html><center><h1>$array1</center></h1></html>"; # отправить содержимое с сообщением
                  }
          }
     }
