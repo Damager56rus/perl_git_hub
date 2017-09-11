@@ -1,0 +1,29 @@
+version: '2'
+services:
+  app:
+    build: .
+    container_name: app
+    restart: always
+    tty: true
+    ports:
+      - "8080:80"
+    command: /app/runfile
+    volumes:
+      - ./:/app:rw
+    depends_on:
+      - mysql
+      - redis
+  mysql:
+    image: percona
+    container_name: mysql
+    restart: always
+    environment:
+MYSQL_ROOT_PASSWORD=kawabanga
+    ports:
+      - "3306:3306"
+ redis:
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
