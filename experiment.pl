@@ -6,6 +6,6 @@ use Crewmember;
 
 my $sub;
 say "Hello";
-my $object = Crewmember->new( 'Gubachev Dmitriy Valerievich', 'leutenant', 'gunner', '10 years', 'Т-34' );
+my $object = Crewmember->new( 'Ivanov Ivan Ivanovich', 'leutenant', 'gunner', '10 years', 'T-34' );
 say "Bye";
-say $object->get_set_speciality( 'commander' );
+say $object->get_set_fullname( );
