@@ -2,10 +2,11 @@
 
 use Modern::Perl;
 use Data::Dumper;
-use Crewmember;
+use Military_materiel;
 
 my $sub;
 say "Hello";
-my $object = Crewmember->new( 'Ivanov Ivan Ivanovich', 'leutenant', 'gunner', '10 years', 'T-34' );
+my $object = Military_materiel->new( 'plane', 'T-34', '100', '250', '300' );
 say "Bye";
-say $object->get_set_fullname( );
+say $object->get_hit( '100' );
+say $object->{ strength };
