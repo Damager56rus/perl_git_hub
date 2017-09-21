@@ -4,7 +4,7 @@ package Military_materiel;
 use Modern::Perl;
 
 sub new {
-    my ( $class, $type, $model_name, $speed, $armor, $strength ) = @_;
+    my ( $class, $type, $model_name, $speed, $armor, $strength, $weapon ) = @_;
     my $self = { };
     
     if ( $type =~ /^tank$|^plane$/i ) {
@@ -31,6 +31,16 @@ sub new {
          $self->{ strength } = $strength; # прочность
     }
     else { die "Invalid value for: strength!"; }
+
+    if ( $type =~ /tank/i && $weapon =~ /^cannon$|^machine_gun$/ ) {
+         $self->{ weapon } = $weapon; # прочность
+    }
+    elsif ( $type =~ /plane/i && $weapon =~ /^rocket$|^machine_gun$/ ) {
+            $self->{ weapon } = $weapon; # оружие
+    }
+    else {
+            die "Invalid value for: weapon!";
+    }
     
     bless $self, $class;
     
@@ -38,7 +48,7 @@ sub new {
          say $self-> { type }, " took the position.";
     }
     elsif ( $type =~ /plane/i ) {
-         say  say $self-> { type }, " took off.";
+            say  say $self-> { type }, " took off.";
     }
 
     return $self;
@@ -98,7 +108,7 @@ sub flying {
 sub get_hit {
     my ( $self, $damage ) = @_;
     $self->{ strength } -= $damage;
-    my $destroy_probability = int(rand(10));
+    my $destroy_probability = int( rand( 10 ) );
 
     if ( $self->{ strength } <= 0 || $destroy_probability == 5) { 
          return DESTROY( $self ); 
@@ -111,6 +121,33 @@ sub DESTROY {
     my $self = shift;
 
     return $self->{ type }, " destroyed!";
+}
+
+sub fire_cannon {
+    my $self = shift;
+
+    if ( $self->{ weapon } =~ /^cannon$/) {
+         return $self->{ weapon }, " shoot!";
+    }
+    else { return $self->{ type }, " does not have a cannon!"; }
+}
+
+sub fire_machine_gun {
+    my $self = shift;
+
+    if ( $self->{ weapon } =~ /^machine_gun$/) {
+         return $self->{ weapon }, " shoot!";
+    }
+    else { return $self->{ type }, " does not have a machine_gun!"; }
+}
+
+sub fire_rocket {
+    my $self = shift;
+
+    if ( $self->{ weapon } =~ /^rocket$/) {
+         return $self->{ weapon }, " shoot!";
+    }
+    else { return $self->{ type }, " does not have a rocket!"; }
 }
 
 1;
