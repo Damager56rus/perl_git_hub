@@ -1,7 +1,15 @@
 #!/usr/bin/perl
 
 use Modern::Perl;
-use Location;
+#use Game_area;
+use Location_object;
+#use Mojo::Log;
 
-my $game_area = Location->new_game_area( '1', '500', '500' );
-say $game_area->get_number();
+#my $area = Game_area->new( '1', '500', '500' );
+
+#say $area->spawn_enimes();
+
+my $planet = Location_object->new( 'Earth', '10', '10','1' );
+say $planet->move_by_object( '4' );
+
+#my $log = Mojo::Log->new( path => 'log.log' );
