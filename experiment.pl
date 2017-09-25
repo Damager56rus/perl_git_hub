@@ -9,7 +9,7 @@ use Location_object;
 
 #say $area->spawn_enimes();
 
-my $planet = Location_object->new( 'Earth', '10', '10','1' );
-say $planet->move_by_object( '4' );
+my $planet = Location_object->new( 'planet', 'Earth', '10', '10','1' );
+say $planet->get_coordinates();
 
 #my $log = Mojo::Log->new( path => 'log.log' );

@@ -26,6 +26,14 @@ sub new {
 	return $self;
 }
 
+sub get_attributes {
+	my $self = shift;
+
+	return $self->{number},
+	       $self->{size_x},
+	       $self->{size_y};
+}
+
 sub get_number {
 	my $self = shift;
 	
