@@ -3,6 +3,7 @@ package Military_materiel;
 
 use Modern::Perl;
 use Weapon_type;
+use Test::More tests => 5;
 
 our @ISA = ( 'Weapon_type' ); # для наследования методов take_aim и fire
 
@@ -125,5 +126,14 @@ sub DESTROY {
 
     return $self->{ type }, " destroyed!";
 }
+
+# Тесты
+use_ok( 'Modern::Perl' );
+use_ok( 'Weapon_type' );
+
+# тестирование sub new()
+like( 'tank', '/^tank$|^plane$/i', 'Test 1 $type validation' );
+like( 'plane', '/^tank$|^plane$/i', 'Test 2 $type validation' );
+unlike( 'car', '/^tank$|^plane$/i', 'Test 3 $type validation' );
 
 1;

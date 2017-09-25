@@ -3,4 +3,4 @@
 use Modern::Perl;
 use Military_materiel;
 
-my $unit = Military_materiel->new( 'plane', 'SU-27', '200', '250', '300', 'rocket', '5' );
+my $unit = Military_materiel->new( 'tank', 'T-34', '100', '250', '300', 'cannon', '20' );
