@@ -142,6 +142,7 @@ location_object
 -Atlas(490,490).
 
 Станции:
+-Start(250,250);
 -Hope(250,20);
 -Mir(100,200);
 -Hermes(300,220);
