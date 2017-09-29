@@ -1,10 +1,10 @@
 # Практика по ООП №2
-package Military_materiel;
+package MilitaryMateriel;
 
 use Modern::Perl;
-use Weapon_type;
+use WeaponType;
 
-our @ISA = ( 'Weapon_type' ); # для наследования методов take_aim и fire
+our @ISA = ( 'WeaponType' ); # для наследования методов take_aim и fire
 
 sub new {
     my ( $class, $type, $model_name, $speed, $armor, $strength, $weapon_type, $ammunition_amount ) = @_;
@@ -36,10 +36,10 @@ sub new {
     else { die "Invalid value for strength!"; }
 
     if ( $type =~ /tank/i && $weapon_type =~ /^cannon$|^machine_gun$/ ) { # если тип оружия подходит для техники
-         $self->{ weapon } = Weapon_type->new( $weapon_type, $ammunition_amount ); # установить оружие на танк
+         $self->{ weapon } = WeaponType->new( $weapon_type, $ammunition_amount ); # установить оружие на танк
     }
     elsif ( $type =~ /plane/i && $weapon_type =~ /^rocket$|^machine_gun$/ ) {
-            $self->{ weapon } = Weapon_type->new( $weapon_type, $ammunition_amount ); # установить оружие на самолет
+            $self->{ weapon } = WeaponType->new( $weapon_type, $ammunition_amount ); # установить оружие на самолет
     }
     else { # если тип оружия не подходит для техники
             die "Invalid value for weapon_type!";

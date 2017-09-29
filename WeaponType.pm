@@ -1,5 +1,5 @@
 # Практика по ООП №2
-package Weapon_type;
+package WeaponType;
 use Modern::Perl;
 
 sub new {
