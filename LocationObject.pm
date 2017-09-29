@@ -1,7 +1,11 @@
-package Location_object;
+package SpaceLife::Modules::LocationObject;
 
 use Modern::Perl;
-use DBI;
+use DBIx::Simple;
+use Mojo::Base 'Mojolicious';
+use SpaceLife::DbConfig;
+
+my $dbh = $SpaceLife::DbConfig::db_conn;
 
 sub new {
 	my ( $class, $type, $name, $coordinate_x, $coordinate_y, $area_number, $id ) = @_;
@@ -32,58 +36,37 @@ sub new {
 	}
 	else { die "Invalid value for area_number!"; }
 
-    my $request = "INSERT INTO location_object( type, name, coordinate_x, coordinate_y, area_number ) 
+    my $query = "INSERT INTO location_object( type, name, coordinate_x, coordinate_y, area_number ) 
                    VALUES( '$self->{type}', '$self->{name}' ,'$self->{coordinate_x}', '$self->{coordinate_y}', '$self->{area_number}' )";
-	db_write_object( $self, $request );
+	
+	make_query_to_db( $self, $query );
 
 	bless $self, $class;
 	
 	return $self;
 }
 
-sub db_connect {
-	my $dbh = DBI->connect( 'DBI:mysql:locations', 'root', 'w12345%@' )
-       or die "Error connecting to database";
-    
-    return $dbh;
-}
-
-sub db_read_object {
+sub read_object_from_db {
     my ( $class, $id ) = @_;
-    my $dbh = db_connect( );
-    my $sth = $dbh->prepare( "SELECT * FROM location_object WHERE id = '$id'" );
-    
-    $sth->execute;
-    
-    my $db_data = $sth->fetchrow_hashref;
-    
-    $sth->finish;
-    
-    $dbh->disconnect;
+    my $query = "SELECT * FROM location_object WHERE id = $id";
+    my $db_data = make_query_to_db( $class, $query )->hash;
 
     bless $db_data, $class;
 
     return $db_data;
 }
 
-sub db_write_object {
-    my ( $self, $request ) = @_;
-    my $dbh = db_connect( );
-    my $sth = $dbh->prepare( $request ); # подготовить запрос к выполнению
-    
-    $sth->execute;
-  
-    $dbh->disconnect;
+sub make_query_to_db {
+    my ( $self, $query ) = @_;
+
+    $dbh->query( $query ) or die $dbh->error;
 }
 
-sub list_of_objects {
-    my $dbh = db_connect( );
-    my $sth = $dbh->prepare( "SELECT * FROM location_object" );
+sub list_of_created_objects {
+    my $result = $dbh->query( "SELECT * FROM location_object" ) or die $dbh->error;
     
-    $sth->execute;
-    
-    while ( my $db_data = $sth->fetchrow_hashref ) {
-            say "---Location_object---";
+    while ( my $db_data = $result->hash ) {
+            say "---LocationObject---";
             say "id: ", $db_data->{id};
             say "type: ", $db_data->{type};
             say "name: ", $db_data->{name};
@@ -91,10 +74,6 @@ sub list_of_objects {
             say "coordinate_y: ", $db_data->{coordinate_y};
             say "area_number: ", $db_data->{area_number};
     }
-
-    $sth->finish;
-    
-    $dbh->disconnect;
 }
 
 sub get_object_info {
@@ -122,11 +101,11 @@ sub get_type {
 
 sub set_type {
 	my ( $self, $type ) = @_;
-	my $request = "UPDATE location_object SET type = '$type' WHERE id = '$self->{id}'";
+	my $query = "UPDATE location_object SET type = '$type' WHERE id = '$self->{id}'";
 
 	if ( $type =~ /^planet$|^station$/i ) {
 		 
-         db_write_object( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{type} = $type;
 	}
@@ -141,11 +120,11 @@ sub get_name {
 
 sub set_name {
 	my ( $self, $name ) = @_;
-	my $request = "UPDATE location_object SET name = '$name' WHERE id = '$self->{id}'";
+	my $query = "UPDATE location_object SET name = '$name' WHERE id = '$self->{id}'";
 
 	if ( $name =~ /^\w+$/ ) {
 		 
-         db_write_object( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{name} = $name;
 	}
@@ -160,11 +139,11 @@ sub get_coordinate_x {
 
 sub set_coordinate_x {
 	my ( $self, $coordinate_x ) = @_;
-	my $request = "UPDATE location_object SET coordinate_x = '$coordinate_x' WHERE id = '$self->{id}'";
+	my $query = "UPDATE location_object SET coordinate_x = '$coordinate_x' WHERE id = '$self->{id}'";
 
 	if ( $coordinate_x =~ /^\d+$/ ) {
 		 
-         db_write_object( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{coordinate_x} = $coordinate_x;
 	}
@@ -179,11 +158,11 @@ sub get_coordinate_y {
 
 sub set_coordinate_y {
 	my ( $self, $coordinate_y ) = @_;
-	my $request = "UPDATE location_object SET coordinate_y = '$coordinate_y' WHERE id = '$self->{id}'";
+	my $query = "UPDATE location_object SET coordinate_y = '$coordinate_y' WHERE id = '$self->{id}'";
 
 	if ( $coordinate_y =~ /^\d+$/ ) {
 		 
-         db_write_object( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{coordinate_y} = $coordinate_y;
 	}
@@ -206,15 +185,23 @@ sub get_area_number {
 
 sub set_area_number {
 	my ( $self, $area_number ) = @_;
-	my $request = "UPDATE location_object SET area_number = '$area_number' WHERE id = '$self->{id}'";
+	my $query = "UPDATE location_object SET area_number = '$area_number' WHERE id = '$self->{id}'";
 
 	if ( $area_number =~ /^\d+$/ ) {
 		 
-         db_write_object( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{area_number} = $area_number;
 	}
 	else { die "Invalid value for area_number!"; }
+}
+
+sub delete_object_from_db { # протестировать
+	my $self = shift;
+
+	my $query = "DELETE FROM location_object WHERE id = '$self->{id}'";
+		 
+    make_query_to_db( $self, $query );
 }
 
 sub move_by_object {
@@ -234,6 +221,32 @@ sub move_by_object {
 	elsif ( $move_choice == 3 ) {
 		    return "Ship flew away";
 	}
+}
+
+sub check_coordinates {
+	my ( $class, $coordinate_x, $coordinate_y ) = @_;
+    my @objects = load_all_objects_from_db( );
+    
+    foreach my $objects( @objects ) {
+            if ( $objects->{coordinate_x} eq $coordinate_x && $objects->{coordinate_y} eq $coordinate_y) {
+            	 return "base";
+            }
+    }
+    
+    return "space";
+}
+
+sub load_all_objects_from_db {
+    my @objects;
+    my $i = 0;
+    my $result = $dbh->query( "SELECT * FROM location_object" ) or die $dbh->error;
+    
+    while ( my $db_data = $result->hash ) {
+            $objects[$i] = $db_data;
+            $i++;
+    }
+
+    return @objects;
 }
 
 1;

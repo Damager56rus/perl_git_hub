@@ -1,7 +1,11 @@
-package Game_area;
+package SpaceLife::Modules::GameArea;
 
 use Modern::Perl;
-use DBI;
+use DBIx::Simple;
+use Mojo::Base 'Mojolicious';
+use SpaceLife::DbConfig;
+
+my $dbh = $SpaceLife::DbConfig::db_conn;
 
 sub new {
 	my ( $class, $number, $size_x, $size_y , $id ) = @_;
@@ -24,66 +28,40 @@ sub new {
 
 	bless $self, $class;
 
-	my $request = "INSERT INTO game_area( number, size_x, size_y ) 
+	my $query = "INSERT INTO game_area( number, size_x, size_y ) 
 	               VALUES( '$self->{number}', '$self->{size_x}', '$self->{size_y}' )";
     
-    db_write_area( $self, $request );
+    make_query_to_db( $self, $query );
 	
 	return $self;
 }
 
-sub db_connect {
-	my $dbh = DBI->connect( 'DBI:mysql:locations', 'user', 'password' )
-       or die "Error connecting to database";
-    
-    return $dbh;
-}
-
-sub db_read_area {
+sub read_area_from_db {
     my ( $class, $id ) = @_;
-    my $dbh = db_connect( );
-    my $sth = $dbh->prepare( "SELECT * FROM game_area WHERE id = '$id'" );
-    
-    $sth->execute;
-    
-    my $db_data = $sth->fetchrow_hashref;
-    
-    $sth->finish;
-    
-    $dbh->disconnect;
+    my $query = "SELECT * FROM game_area WHERE id = $id";
+    my $db_data = make_query_to_db( $class, $query )->hash;
 
     bless $db_data, $class;
 
     return $db_data;
 }
 
-sub db_write_area {
-    my ( $self, $request ) = @_;
-    my $dbh = db_connect( );
-    my $sth = $dbh->prepare( $request ); # подготовить запрос к выполнению
-    
-    $sth->execute;
+sub make_query_to_db {
+    my ( $self, $query ) = @_;
 
-    $dbh->disconnect;
+    $dbh->query( $query ) or die $dbh->error;
 }
 
-sub list_of_areas {
-    my $dbh = db_connect( );
-    my $sth = $dbh->prepare( "SELECT * FROM game_area" );
+sub list_of_created_areas {
+    my $result = $dbh->query( "SELECT * FROM game_area" ) or die $dbh->error;
     
-    $sth->execute;
-    
-    while ( my $db_data = $sth->fetchrow_hashref ) {
-            say "---Game_area---";
+    while ( my $db_data = $result->hash ) {
+            say "---GameArea---";
             say "id: ", $db_data->{id};
             say "number: ", $db_data->{number};
             say "size_x: ", $db_data->{size_x};
             say "size_y: ", $db_data->{size_y};
     }
-
-    $sth->finish;
-    
-    $dbh->disconnect;
 }
 
 sub get_area_info {
@@ -109,11 +87,11 @@ sub get_number {
 
 sub set_number {
 	my ( $self, $number ) = @_;
-	my $request = "UPDATE game_area SET number = '$number' WHERE id = '$self->{id}'";
+	my $query = "UPDATE game_area SET number = '$number' WHERE id = '$self->{id}'";
 
 	if ( $number =~ /^\d+$/ ) {
 		 
-         db_write_area( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{number} = $number;
 	}
@@ -128,11 +106,11 @@ sub get_size_x {
 
 sub set_size_x {
 	my ( $self, $size_x ) = @_;
-	my $request = "UPDATE game_area SET size_x = '$size_x' WHERE id = '$self->{id}'";
+	my $query = "UPDATE game_area SET size_x = '$size_x' WHERE id = '$self->{id}'";
 
 	if ( $size_x =~ /^\d+$/ ) {
 		 
-         db_write_area( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{size_x} = $size_x;
 	}
@@ -147,11 +125,11 @@ sub get_size_y {
 
 sub set_size_y {
 	my ( $self, $size_y ) = @_;
-	my $request = "UPDATE game_area SET size_y = '$size_y' WHERE id = '$self->{id}'";
+	my $query = "UPDATE game_area SET size_y = '$size_y' WHERE id = '$self->{id}'";
 
 	if ( $size_y =~ /^\d+$/ ) {
 		 
-         db_write_area( $self, $request );
+         make_query_to_db( $self, $query );
 
 		 return $self->{size_y} = $size_y;
 	}
@@ -166,6 +144,14 @@ sub get_size {
 	return $size_x, $size_y;
 }
 
+sub delete_game_area_from_db {
+	my $self = shift;
+
+	my $query = "DELETE FROM game_area WHERE id = '$self->{id}'";
+		 
+    make_query_to_db( $self, $query );
+}
+
 sub spawn_enimes {
 	my $self = shift;
     my $spawn_variants = int( rand( 8 ) );
@@ -173,7 +159,6 @@ sub spawn_enimes {
 	my $maximum_rand;
 
     if ( $spawn_variants <= 5 ) {
-    	 #$log = $log->info( "Spawn|No spawn in this stroke." );
     	 return "No spawn";
     }
     elsif ( $spawn_variants == 6 ) {
