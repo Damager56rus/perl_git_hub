@@ -1,11 +1,10 @@
 # Практика по ООП №2
-package Military_materiel;
+package MilitaryMateriel;
 
 use Modern::Perl;
-use Weapon_type;
-use Test::More tests => 5;
+use WeaponType;
 
-our @ISA = ( 'Weapon_type' ); # для наследования методов take_aim и fire
+our @ISA = ( 'WeaponType' ); # для наследования методов take_aim и fire
 
 sub new {
     my ( $class, $type, $model_name, $speed, $armor, $strength, $weapon_type, $ammunition_amount ) = @_;
@@ -14,36 +13,36 @@ sub new {
     if ( $type =~ /^tank$|^plane$/i ) {
          $self->{ type } = $type; # тип техники: танк или самолет
     }
-    else { die "Invalid value for type!"; }
+    else { return "Invalid value for type!"; }
 
     if ( $model_name =~ /\w+/i ) {
          $self->{ model_name } = $model_name; # название модели
     }
-    else { die "Invalid value for model_name!"; }
+    else { return "Invalid value for model_name!"; }
 
     if ( $speed =~ /^\d+$/ ) {
          $self->{ speed } = $speed; # скорость
     }
-    else { die "Invalid value for speed!"; }
+    else { return "Invalid value for speed!"; }
 
     if ( $armor =~ /^\d+$/ ) {
          $self->{ armor } = $armor; # толщина брони
     }
-    else { die "Invalid value for armor!"; }
+    else { return "Invalid value for armor!"; }
 
     if ( $strength =~ /^\d+$/ ) {
          $self->{ strength } = $strength; # прочность
     }
-    else { die "Invalid value for strength!"; }
+    else { return "Invalid value for strength!"; }
 
     if ( $type =~ /tank/i && $weapon_type =~ /^cannon$|^machine_gun$/ ) { # если тип оружия подходит для техники
-         $self->{ weapon } = Weapon_type->new( $weapon_type, $ammunition_amount ); # установить оружие на танк
+         $self->{ weapon } = WeaponType->new( $weapon_type, $ammunition_amount ); # установить оружие на танк
     }
     elsif ( $type =~ /plane/i && $weapon_type =~ /^rocket$|^machine_gun$/ ) {
-            $self->{ weapon } = Weapon_type->new( $weapon_type, $ammunition_amount ); # установить оружие на самолет
+            $self->{ weapon } = WeaponType->new( $weapon_type, $ammunition_amount ); # установить оружие на самолет
     }
     else { # если тип оружия не подходит для техники
-            die "Invalid value for weapon_type!";
+            return "Invalid value for weapon_type!";
     }
 
     bless $self, $class;
@@ -63,11 +62,11 @@ sub get_set_speed {
 
     if ( defined $speed ) { 
          if ( $speed =~ /^\d+$/ ) {
-              return say "New speed value is: ", $self->{ speed } = $speed; # новое значение скорости
+              return "New speed value is: ", $self->{ speed } = $speed; # новое значение скорости
          }
-         else { die "Invalid new value for speed!"; }
+         else { return "Invalid new value for speed!"; }
     }
-    else { return say "Current speed value is: ", $self->{ speed }; } # текущее значение для скорости
+    else { return "Current speed value is: ", $self->{ speed }; } # текущее значение для скорости
 }
 
 sub get_set_strength {
@@ -75,11 +74,11 @@ sub get_set_strength {
 
     if ( defined $strength ) { 
          if ( $strength =~ /^\d+$/ ) {
-              return say "New strength value is: ", $self->{ strength } = $strength;
+              return "New strength value is: ", $self->{ strength } = $strength;
          }
-         else { die "Invalid new value for strength!"; }
+         else { return "Invalid new value for strength!"; }
     }
-    else { return say "Current strength value is: ", $self->{ strength }; }
+    else { return "Current strength value is: ", $self->{ strength }; }
 }
 
 sub moving {
@@ -96,17 +95,17 @@ sub moving {
 sub ride_the_ground {
     my $self = shift;
 
-    return say $self->{ type }, " rides the ground."; # ехать по земле
+    return $self->{ type }, " rides the ground."; # ехать по земле
 }
 
 sub flying {
     my $self = shift;
 
     unless ( $self->{ type } =~ /plane/i  ) {
-             return say DESTROY( $self );
+             return DESTROY( $self );
     }
 
-    return say $self->{ type }, " is flying."; # лететь
+    return $self->{ type }, " is flying."; # лететь
 }
 
 sub get_hit {
@@ -115,10 +114,10 @@ sub get_hit {
     my $destroy_probability = int( rand( 10 ) ); # вероятность уничтожения 10% при попадании
 
     if ( $self->{ strength } <= 0 || $destroy_probability == 5) { 
-         return say DESTROY( $self ); 
+         return DESTROY( $self ); 
     }
 
-    return say "Strength value is: ", $self->{ strength }; # толщина брони после попадания
+    return "Strength value is: ", $self->{ strength }; # толщина брони после попадания
 }
 
 sub DESTROY {
@@ -126,14 +125,3 @@ sub DESTROY {
 
     return $self->{ type }, " destroyed!";
 }
-
-# Тесты
-use_ok( 'Modern::Perl' );
-use_ok( 'Weapon_type' );
-
-# тестирование sub new()
-like( 'tank', '/^tank$|^plane$/i', 'Test 1 $type validation' );
-like( 'plane', '/^tank$|^plane$/i', 'Test 2 $type validation' );
-unlike( 'car', '/^tank$|^plane$/i', 'Test 3 $type validation' );
-
-1;
