@@ -23,19 +23,19 @@ describe "Backend_db" => sub {
                         is( BackendDb::process_request( '/catalog' ), 'all catalog data' );
                     };
                     
-                    it "should return: sort by Platon catalog" => sub {
-                        BackendDb->stubs( search_author => 'sort by Platon catalog' );
+                    it "should return: sorted by Platon catalog" => sub {
+                        BackendDb->stubs( search_author => 'sorted by Platon catalog' );
 
                         is( BackendDb::process_request( '/catalog/platon' ), 
-                        	'sort by Platon catalog' );
+                        	'sorted by Platon catalog' );
                     };
                     
-                    it "should return: sort by Platon and data writing catalog" => sub {
+                    it "should return: sorted by Platon and data writing catalog" => sub {
                         BackendDb->stubs( search_author_sort_data_writing => 
-                        	             'sort by Platon and data writing catalog' );
+                        	             'sorted by Platon and data writing catalog' );
 
                         is( BackendDb::process_request( '/catalog/platon/date_asc' ), 
-                        	'sort by Platon and data writing catalog' );
+                        	'sorted by Platon and data writing catalog' );
                     };
                     
                     it "should return: Aristotel repository data" => sub {
@@ -53,14 +53,8 @@ describe "Backend_db" => sub {
                     };
           };
 
-          describe "read_catalog" => sub {
-                    it "should return: all catalog data" => sub {
-                        # в процессе
-                    };
-          };
-
           describe "search_author" => sub {
-                    it "should return: sort by Platon catalog" => sub {
+                    it "should return: sorted by Platon catalog" => sub {
                         my @catalog;
                         $catalog[0] = {
                              author => 'Platon',
@@ -97,7 +91,7 @@ describe "Backend_db" => sub {
           };
           
           describe "search_author_sort_data_writing" => sub {
-                    it "should return: sort by Platon and data writing catalog" => sub {
+                    it "should return: sorted by Platon and data writing catalog" => sub {
                         my @catalog;
                         $catalog[0] = {
                              author => 'Platon',
@@ -141,8 +135,32 @@ describe "Backend_db" => sub {
           };
 
           describe "read_user_repository" => sub {
-                    it "should return: Aristotel repository data" => sub {
-                        # в процессе
+                    it "should return: Aristotel repository data." => sub {
+                        my @user_catalog;
+                        $user_catalog[0] = {
+                             author => 'Platon',
+                             name => 'Feast',
+                             date_of_writing => '-360',
+                             publishing_house => 'Korinf, Ancient Greece',
+                             isbn => '123-2684',
+                        };
+                        
+                        my $ref_user_catalog = \@user_catalog;
+                        my $DBI_mock = stub();
+                        
+                        $DBI_mock->stubs( prepare => stub( 'execute' => 1, 'fetchall_arrayref' => $ref_user_catalog ) );
+                        BackendDb->stubs( get_db_handler => $DBI_mock );
+
+                        is( BackendDb::read_user_repository( 'aristotel' ), @$ref_user_catalog );
+                    };
+
+                    it "should return: User repository is empty." => sub {
+                        my $DBI_mock = stub();
+                        
+                        $DBI_mock->stubs( prepare => stub( 'execute' => 1, 'fetchall_arrayref' => undef ) );
+                        BackendDb->stubs( get_db_handler => $DBI_mock );
+
+                        is( BackendDb::read_user_repository( 'aristotel' ), 'User repository is empty.' );
                     };
           };
 
