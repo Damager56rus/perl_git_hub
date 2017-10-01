@@ -157,7 +157,7 @@ describe "Backend_db" => sub {
                     it "should return: User repository is empty." => sub {
                         my $DBI_mock = stub();
                         
-                        $DBI_mock->stubs( prepare => stub( 'execute' => 1, 'fetchall_arrayref' => undef ) );
+                        $DBI_mock->stubs( prepare => stub( 'execute' => '0E0', 'fetchall_arrayref' => undef ) );
                         BackendDb->stubs( get_db_handler => $DBI_mock );
 
                         is( BackendDb::read_user_repository( 'aristotel' ), 'User repository is empty.' );
